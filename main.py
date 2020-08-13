@@ -51,7 +51,13 @@ def incomplete_tasks():
         return redirect(url_for('login'))
     
     if request.method == 'POST':
-        pass        
+        user = User.select().where(User.name == session['username']).get()
+          
+        Task.update(performed=datetime.now(), performed_by=user)\
+            .where(Task.id == request.form['task_id'])\
+            .execute()
+
+    return render_template('incomplete.jinja2', tasks=Task.select().where(Task.performed.is_null()))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
