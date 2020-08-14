@@ -33,17 +33,16 @@ def login():
     if request.method == 'POST':
         try:
             user = User.select().where(User.name == request.form['name']).get()
+        except DoesNotExist :
+            user = None
 
-            if user and pbkdf2_sha256.verify(request.form['password'], user.password):
-                print("this was hit")
-                session['username'] = request.form['name']
-                return redirect(url_for('all_tasks'))
-        except Exception as e:
-            error = "Incorrect username or password."
-            return render_template('login.jinja2', error=error)
+        if user and pbkdf2_sha256.verify(request.form['password'], user.password):
+            session['username'] = request.form['name']
+            return redirect(url_for('all_tasks'))
 
-    else:
-        return render_template('login.jinja2')
+        return render_template('login.jinja2', error="Incorrect username or password.")
+
+    return render_template('login.jinja2')
 
 @app.route('/incomplete', methods=['GET', 'POST'])
 def incomplete_tasks():
